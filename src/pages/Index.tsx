@@ -85,7 +85,7 @@ const Index = () => {
               value={latestReading?.temperature?.toFixed(1) ?? "--"}
               unit="°C"
               icon={Thermometer}
-              status="normal"
+              status={latestReading?.temperature && latestReading.temperature > 35 ? "warning" : "normal"}
             />
           </div>
           <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
