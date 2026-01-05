@@ -4,7 +4,9 @@ import AlertBanner from "@/components/AlertBanner";
 import DataCard from "@/components/DataCard";
 import WaterLevelChart from "@/components/WaterLevelChart";
 import HistoricalReportsTable from "@/components/HistoricalReportsTable";
+import BroadcastAlertPanel from "@/components/BroadcastAlertPanel";
 import { useSensorReadings } from "@/hooks/useSensorReadings";
+import { useAuth } from "@/hooks/useAuth";
 
 const getStatusLevel = (status: string | undefined): "advisory" | "warning" | "evacuation" => {
   if (!status) return "advisory";
@@ -36,16 +38,32 @@ const getAlertMessage = (status: string | undefined, waterLevel: number | undefi
 
 const Index = () => {
   const { latestReading, historicalData, isLoading } = useSensorReadings();
+  const { user, isAdmin, isLoading: authLoading } = useAuth();
 
   const status = latestReading?.status;
   const statusLevel = getStatusLevel(status);
   const cardStatus = getCardStatus(status);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       <main className="container py-4 md:py-6 space-y-4 md:space-y-6">
+        {/* Admin Broadcast Panel */}
+        {isAdmin && user && (
+          <section className="animate-fade-in">
+            <BroadcastAlertPanel userId={user.id} />
+          </section>
+        )}
+
         {/* Alert Banner */}
         <section className="animate-fade-in">
           <AlertBanner
