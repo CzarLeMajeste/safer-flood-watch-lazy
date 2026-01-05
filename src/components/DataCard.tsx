@@ -17,6 +17,12 @@ const statusColors = {
   critical: "text-alert-danger",
 };
 
+const statusBgColors = {
+  normal: "border-alert-safe/30 bg-alert-safe/5",
+  warning: "border-alert-warning/30 bg-alert-warning/5",
+  critical: "border-alert-danger/30 bg-alert-danger/5 animate-pulse",
+};
+
 const DataCard = ({
   title,
   value,
@@ -27,7 +33,7 @@ const DataCard = ({
   status = "normal",
 }: DataCardProps) => {
   return (
-    <Card className="data-card border-border/50 bg-card/80 backdrop-blur-sm hover:border-primary/30 transition-all duration-300">
+    <Card className={`data-card backdrop-blur-sm hover:border-primary/30 transition-all duration-300 ${statusBgColors[status]}`}>
       <CardContent className="p-4 md:p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="p-2 rounded-lg bg-primary/10">
