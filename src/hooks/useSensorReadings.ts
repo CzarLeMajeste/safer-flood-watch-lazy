@@ -8,6 +8,7 @@ export interface SensorReading {
   rainfall_intensity: number;
   status: string;
   battery_voltage: number | null;
+  temperature: number | null;
 }
 
 export const useSensorReadings = () => {

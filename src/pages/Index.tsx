@@ -1,4 +1,4 @@
-import { Droplets, CloudRain, Activity } from "lucide-react";
+import { Droplets, CloudRain, Activity, Thermometer } from "lucide-react";
 import Header from "@/components/Header";
 import AlertBanner from "@/components/AlertBanner";
 import DataCard from "@/components/DataCard";
@@ -60,7 +60,7 @@ const Index = () => {
         </section>
 
         {/* Real-Time Data Cards */}
-        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
             <DataCard
               title="Water Level"
@@ -77,6 +77,15 @@ const Index = () => {
               unit="mm/hr"
               icon={CloudRain}
               status={cardStatus}
+            />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
+            <DataCard
+              title="Temperature"
+              value={latestReading?.temperature?.toFixed(1) ?? "--"}
+              unit="°C"
+              icon={Thermometer}
+              status="normal"
             />
           </div>
           <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
