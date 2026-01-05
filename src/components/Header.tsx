@@ -12,9 +12,12 @@ const Header = () => {
           <div>
             <h1 className="text-lg font-bold tracking-tight">
               Project <span className="text-primary">SAFER</span>
+              <span className="hidden md:inline text-muted-foreground font-normal">
+                : Community IoT Flood Warning
+              </span>
             </h1>
-            <p className="text-xs text-muted-foreground hidden sm:block">
-              Smart Alert and Flood Early Response
+            <p className="text-xs text-muted-foreground sm:hidden">
+              Community IoT Flood Warning
             </p>
           </div>
         </div>

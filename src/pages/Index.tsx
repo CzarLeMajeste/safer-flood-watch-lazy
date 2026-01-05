@@ -1,13 +1,46 @@
-import { Droplets, CloudRain, Thermometer } from "lucide-react";
+import { Droplets, CloudRain, Activity } from "lucide-react";
 import Header from "@/components/Header";
 import AlertBanner from "@/components/AlertBanner";
 import DataCard from "@/components/DataCard";
-import SensorMap from "@/components/SensorMap";
 import WaterLevelChart from "@/components/WaterLevelChart";
-import ControlPanel from "@/components/ControlPanel";
-import CommunitySection from "@/components/CommunitySection";
+import HistoricalReportsTable from "@/components/HistoricalReportsTable";
+import { useSensorReadings } from "@/hooks/useSensorReadings";
+
+const getStatusLevel = (status: string | undefined): "advisory" | "warning" | "evacuation" => {
+  if (!status) return "advisory";
+  const normalized = status.toLowerCase();
+  if (normalized === "evacuation") return "evacuation";
+  if (normalized === "warning") return "warning";
+  return "advisory";
+};
+
+const getCardStatus = (status: string | undefined): "normal" | "warning" | "critical" => {
+  if (!status) return "normal";
+  const normalized = status.toLowerCase();
+  if (normalized === "evacuation") return "critical";
+  if (normalized === "warning") return "warning";
+  return "normal";
+};
+
+const getAlertMessage = (status: string | undefined, waterLevel: number | undefined): string => {
+  if (!status) return "Awaiting sensor data...";
+  const normalized = status.toLowerCase();
+  if (normalized === "evacuation") {
+    return `CRITICAL: Water level at ${waterLevel?.toFixed(1) ?? "N/A"}cm. Evacuate immediately!`;
+  }
+  if (normalized === "warning") {
+    return `Warning: Water level at ${waterLevel?.toFixed(1) ?? "N/A"}cm. Monitor conditions closely.`;
+  }
+  return "All systems normal. Conditions are safe.";
+};
 
 const Index = () => {
+  const { latestReading, historicalData, isLoading } = useSensorReadings();
+
+  const status = latestReading?.status;
+  const statusLevel = getStatusLevel(status);
+  const cardStatus = getCardStatus(status);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -16,70 +49,55 @@ const Index = () => {
         {/* Alert Banner */}
         <section className="animate-fade-in">
           <AlertBanner
-            level="warning"
-            message="Water level approaching critical threshold. Monitor conditions closely."
-            lastUpdated="Jan 5, 2026 - 3:42 PM"
+            level={statusLevel}
+            message={getAlertMessage(status, latestReading?.water_level)}
+            lastUpdated={
+              latestReading
+                ? new Date(latestReading.created_at).toLocaleString()
+                : "No data yet"
+            }
           />
         </section>
 
         {/* Real-Time Data Cards */}
-        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4" style={{ animationDelay: "0.1s" }}>
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
             <DataCard
               title="Water Level"
-              value={98}
+              value={latestReading?.water_level?.toFixed(1) ?? "--"}
               unit="cm"
               icon={Droplets}
-              trend="up"
-              trendValue="+12cm/hr"
-              status="warning"
+              status={cardStatus}
             />
           </div>
           <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <DataCard
               title="Rainfall Intensity"
-              value={23.5}
+              value={latestReading?.rainfall_intensity ?? "--"}
               unit="mm/hr"
               icon={CloudRain}
-              trend="stable"
-              trendValue="steady"
-              status="normal"
+              status={cardStatus}
             />
           </div>
           <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <DataCard
-              title="Temperature"
-              value={27}
-              unit="°C"
-              icon={Thermometer}
-              trend="down"
-              trendValue="-2°C"
-              status="normal"
+              title="System Status"
+              value={latestReading?.status ?? "Offline"}
+              unit=""
+              icon={Activity}
+              status={cardStatus}
             />
           </div>
         </section>
 
-        {/* Main Content Grid */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          {/* Chart - Takes 2 columns on large screens */}
-          <div className="lg:col-span-2 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            <WaterLevelChart />
-          </div>
-          
-          {/* Sensor Map */}
-          <div className="animate-fade-in" style={{ animationDelay: "0.5s" }}>
-            <SensorMap />
-          </div>
+        {/* Historical Chart */}
+        <section className="animate-fade-in" style={{ animationDelay: "0.4s" }}>
+          <WaterLevelChart data={historicalData} isLoading={isLoading} />
         </section>
 
-        {/* Control Panel & Community Section */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-          <div className="animate-fade-in" style={{ animationDelay: "0.6s" }}>
-            <ControlPanel />
-          </div>
-          <div className="animate-fade-in" style={{ animationDelay: "0.7s" }}>
-            <CommunitySection />
-          </div>
+        {/* Historical Reports Table */}
+        <section className="animate-fade-in" style={{ animationDelay: "0.5s" }}>
+          <HistoricalReportsTable readings={historicalData} isLoading={isLoading} />
         </section>
 
         {/* Footer */}
