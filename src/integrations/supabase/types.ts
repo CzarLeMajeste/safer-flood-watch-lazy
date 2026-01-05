@@ -21,6 +21,7 @@ export type Database = {
           id: number
           rainfall_intensity: number
           status: string
+          temperature: number | null
           water_level: number
         }
         Insert: {
@@ -29,6 +30,7 @@ export type Database = {
           id?: number
           rainfall_intensity: number
           status: string
+          temperature?: number | null
           water_level: number
         }
         Update: {
@@ -37,6 +39,7 @@ export type Database = {
           id?: number
           rainfall_intensity?: number
           status?: string
+          temperature?: number | null
           water_level?: number
         }
         Relationships: []
