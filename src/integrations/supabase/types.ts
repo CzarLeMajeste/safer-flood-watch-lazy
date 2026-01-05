@@ -14,6 +14,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string
+          role: string | null
+        }
+        Insert: {
+          id: string
+          role?: string | null
+        }
+        Update: {
+          id?: string
+          role?: string | null
+        }
+        Relationships: []
+      }
       sensor_readings: {
         Row: {
           battery_voltage: number | null
@@ -41,6 +56,30 @@ export type Database = {
           status?: string
           temperature?: number | null
           water_level?: number
+        }
+        Relationships: []
+      }
+      sms_queue: {
+        Row: {
+          created_at: string
+          id: number
+          message_body: string
+          status: string | null
+          triggered_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          message_body: string
+          status?: string | null
+          triggered_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          message_body?: string
+          status?: string | null
+          triggered_by?: string | null
         }
         Relationships: []
       }
