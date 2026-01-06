@@ -1,1 +1,4 @@
 project_id = "jkghwasujrpcvtuqkonu"
+
+[functions.esp32-sms-poll]
+verify_jwt = false
