@@ -5,6 +5,7 @@ import DataCard from "@/components/DataCard";
 import WaterLevelChart from "@/components/WaterLevelChart";
 import HistoricalReportsTable from "@/components/HistoricalReportsTable";
 import BroadcastAlertPanel from "@/components/BroadcastAlertPanel";
+import SmsQueueHistory from "@/components/SmsQueueHistory";
 import { useSensorReadings } from "@/hooks/useSensorReadings";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -59,8 +60,9 @@ const Index = () => {
       <main className="container py-4 md:py-6 space-y-4 md:space-y-6">
         {/* Admin Broadcast Panel */}
         {isAdmin && user && (
-          <section className="animate-fade-in">
+          <section className="animate-fade-in space-y-4">
             <BroadcastAlertPanel userId={user.id} />
+            <SmsQueueHistory />
           </section>
         )}
 
