@@ -9,6 +9,7 @@ export interface SensorReading {
   status: string;
   battery_voltage: number | null;
   temperature: number | null;
+  humidity: number | null;
 }
 
 export const useSensorReadings = () => {

@@ -8,19 +8,21 @@ interface DataCardProps {
   icon: LucideIcon;
   trend?: "up" | "down" | "stable";
   trendValue?: string;
-  status?: "normal" | "warning" | "critical";
+  status?: "normal" | "warning" | "critical" | "humid";
 }
 
 const statusColors = {
   normal: "text-alert-safe",
   warning: "text-alert-warning",
   critical: "text-alert-danger",
+  humid: "text-blue-500",
 };
 
 const statusBgColors = {
   normal: "border-alert-safe/30 bg-alert-safe/5",
   warning: "border-alert-warning/30 bg-alert-warning/5",
   critical: "border-alert-danger/30 bg-alert-danger/5 animate-pulse",
+  humid: "border-blue-500/30 bg-blue-500/5",
 };
 
 const DataCard = ({

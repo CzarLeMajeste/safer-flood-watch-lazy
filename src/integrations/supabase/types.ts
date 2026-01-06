@@ -33,6 +33,7 @@ export type Database = {
         Row: {
           battery_voltage: number | null
           created_at: string
+          humidity: number | null
           id: number
           rainfall_intensity: number
           status: string
@@ -42,6 +43,7 @@ export type Database = {
         Insert: {
           battery_voltage?: number | null
           created_at?: string
+          humidity?: number | null
           id?: number
           rainfall_intensity: number
           status: string
@@ -51,6 +53,7 @@ export type Database = {
         Update: {
           battery_voltage?: number | null
           created_at?: string
+          humidity?: number | null
           id?: number
           rainfall_intensity?: number
           status?: string
