@@ -64,6 +64,7 @@ export type Database = {
           created_at: string
           id: number
           message_body: string
+          sent_at: string | null
           status: string | null
           triggered_by: string | null
         }
@@ -71,6 +72,7 @@ export type Database = {
           created_at?: string
           id?: number
           message_body: string
+          sent_at?: string | null
           status?: string | null
           triggered_by?: string | null
         }
@@ -78,6 +80,7 @@ export type Database = {
           created_at?: string
           id?: number
           message_body?: string
+          sent_at?: string | null
           status?: string | null
           triggered_by?: string | null
         }
