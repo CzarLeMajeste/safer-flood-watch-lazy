@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      emergency_contacts: {
+        Row: {
+          created_at: string
+          id: number
+          is_active: boolean
+          name: string | null
+          phone_number: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          is_active?: boolean
+          name?: string | null
+          phone_number: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          is_active?: boolean
+          name?: string | null
+          phone_number?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           id: string
