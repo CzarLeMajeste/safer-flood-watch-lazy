@@ -18,26 +18,46 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // GET - Fetch pending SMS messages
+    // GET - Fetch pending SMS messages and emergency contacts
     if (req.method === 'GET') {
       console.log('ESP32 polling for pending SMS messages...');
       
-      const { data, error } = await supabase
+      // Fetch pending messages
+      const { data: messages, error: messagesError } = await supabase
         .from('sms_queue')
         .select('id, message_body, created_at')
         .eq('status', 'pending')
         .order('created_at', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching pending SMS:', error);
-        return new Response(JSON.stringify({ error: error.message }), {
+      if (messagesError) {
+        console.error('Error fetching pending SMS:', messagesError);
+        return new Response(JSON.stringify({ error: messagesError.message }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      console.log(`Found ${data?.length || 0} pending SMS messages`);
-      return new Response(JSON.stringify({ messages: data || [] }), {
+      // Fetch active emergency contacts
+      const { data: contacts, error: contactsError } = await supabase
+        .from('emergency_contacts')
+        .select('phone_number, name')
+        .eq('is_active', true);
+
+      if (contactsError) {
+        console.error('Error fetching emergency contacts:', contactsError);
+        return new Response(JSON.stringify({ error: contactsError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const recipients = contacts?.map(c => c.phone_number) || [];
+      console.log(`Found ${messages?.length || 0} pending SMS messages, ${recipients.length} recipients`);
+      
+      return new Response(JSON.stringify({ 
+        messages: messages || [],
+        recipients: recipients
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
