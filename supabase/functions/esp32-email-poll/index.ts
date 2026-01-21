@@ -18,29 +18,29 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // GET - Fetch pending SMS messages and emergency contacts
+    // GET - Fetch pending email alerts and emergency contacts
     if (req.method === 'GET') {
-      console.log('ESP32 polling for pending SMS messages...');
+      console.log('ESP32 polling for pending email alerts...');
       
       // Fetch pending messages
       const { data: messages, error: messagesError } = await supabase
-        .from('sms_queue')
-        .select('id, message_body, created_at')
+        .from('email_queue')
+        .select('id, email_body, created_at')
         .eq('status', 'pending')
         .order('created_at', { ascending: true });
 
       if (messagesError) {
-        console.error('Error fetching pending SMS:', messagesError);
+        console.error('Error fetching pending emails:', messagesError);
         return new Response(JSON.stringify({ error: messagesError.message }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      // Fetch active emergency contacts
+      // Fetch active emergency contacts (email addresses)
       const { data: contacts, error: contactsError } = await supabase
         .from('emergency_contacts')
-        .select('phone_number, name')
+        .select('email, name')
         .eq('is_active', true);
 
       if (contactsError) {
@@ -51,8 +51,8 @@ serve(async (req) => {
         });
       }
 
-      const recipients = contacts?.map(c => c.phone_number) || [];
-      console.log(`Found ${messages?.length || 0} pending SMS messages, ${recipients.length} recipients`);
+      const recipients = contacts?.filter(c => c.email).map(c => c.email) || [];
+      console.log(`Found ${messages?.length || 0} pending email alerts, ${recipients.length} recipients`);
       
       return new Response(JSON.stringify({ 
         messages: messages || [],
@@ -62,7 +62,7 @@ serve(async (req) => {
       });
     }
 
-    // PATCH - Update SMS status to 'sent'
+    // PATCH - Update email status to 'sent'
     if (req.method === 'PATCH') {
       const { id } = await req.json();
 
@@ -73,23 +73,23 @@ serve(async (req) => {
         });
       }
 
-      console.log(`Updating SMS ${id} status to 'sent'...`);
+      console.log(`Updating email ${id} status to 'sent'...`);
 
       const { data, error } = await supabase
-        .from('sms_queue')
+        .from('email_queue')
         .update({ status: 'sent' })
         .eq('id', id)
         .select();
 
       if (error) {
-        console.error('Error updating SMS status:', error);
+        console.error('Error updating email status:', error);
         return new Response(JSON.stringify({ error: error.message }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      console.log(`SMS ${id} marked as sent`);
+      console.log(`Email ${id} marked as sent`);
       return new Response(JSON.stringify({ success: true, updated: data }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });

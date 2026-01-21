@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, Send } from "lucide-react";
+import { AlertTriangle, Mail } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,8 +27,8 @@ const BroadcastAlertPanel = ({ userId }: BroadcastAlertPanelProps) => {
 
     setIsSending(true);
 
-    const { error } = await supabase.from("sms_queue").insert({
-      message_body: message.trim(),
+    const { error } = await supabase.from("email_queue").insert({
+      email_body: message.trim(),
       status: "pending",
       triggered_by: userId,
     });
@@ -44,7 +44,7 @@ const BroadcastAlertPanel = ({ userId }: BroadcastAlertPanelProps) => {
     } else {
       toast({
         title: "Alert Queued!",
-        description: "SMS alert has been queued for broadcast to all registered households.",
+        description: "Email alert has been queued for broadcast to all registered contacts.",
       });
       setMessage("");
     }
@@ -58,7 +58,7 @@ const BroadcastAlertPanel = ({ userId }: BroadcastAlertPanelProps) => {
           <CardTitle className="text-lg text-destructive">Broadcast Alert Panel</CardTitle>
         </div>
         <CardDescription>
-          Send emergency SMS alerts to all registered community members.
+          Send emergency email alerts to all registered community members.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -75,11 +75,11 @@ const BroadcastAlertPanel = ({ userId }: BroadcastAlertPanelProps) => {
           className="w-full gap-2"
           size="lg"
         >
-          <Send className="h-4 w-4" />
+          <Mail className="h-4 w-4" />
           {isSending ? "SENDING..." : "SEND TO ALL"}
         </Button>
         <p className="text-xs text-muted-foreground text-center">
-          This will queue the message for immediate SMS broadcast via ESP32 + SIM800L.
+          This will queue the message for immediate email broadcast via ESP32.
         </p>
       </CardContent>
     </Card>
