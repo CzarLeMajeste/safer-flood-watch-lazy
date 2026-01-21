@@ -25,6 +25,12 @@ const getStatusBadgeVariant = (status: string) => {
   return "success";
 };
 
+const getRainfallCondition = (value: number): string => {
+  if (value < 1500) return "Heavy Rain";
+  if (value <= 3000) return "Moderate Rain";
+  return "Dry / Light";
+};
+
 const HistoricalReportsTable = ({ readings, isLoading }: HistoricalReportsTableProps) => {
   const sortedReadings = [...readings].reverse();
 
@@ -69,8 +75,8 @@ const HistoricalReportsTable = ({ readings, isLoading }: HistoricalReportsTableP
                     <TableCell className="font-mono">
                       {reading.water_level.toFixed(1)} cm
                     </TableCell>
-                    <TableCell className="font-mono">
-                      {reading.rainfall_intensity} mm/hr
+                    <TableCell className="font-mono text-xs">
+                      {getRainfallCondition(reading.rainfall_intensity)}
                     </TableCell>
                     <TableCell>
                       <Badge variant={getStatusBadgeVariant(reading.status)}>
