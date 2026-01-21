@@ -6,7 +6,7 @@ import WaterLevelChart from "@/components/WaterLevelChart";
 import EnvironmentalChart from "@/components/EnvironmentalChart";
 import HistoricalReportsTable from "@/components/HistoricalReportsTable";
 import BroadcastAlertPanel from "@/components/BroadcastAlertPanel";
-import SmsQueueHistory from "@/components/SmsQueueHistory";
+import EmailQueueHistory from "@/components/EmailQueueHistory";
 import { useSensorReadings } from "@/hooks/useSensorReadings";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -77,7 +77,7 @@ const Index = () => {
         {isAdmin && user && (
           <section className="animate-fade-in space-y-4">
             <BroadcastAlertPanel userId={user.id} />
-            <SmsQueueHistory />
+            <EmailQueueHistory />
           </section>
         )}
 
@@ -161,7 +161,7 @@ const Index = () => {
         {/* Footer */}
         <footer className="pt-4 pb-6 text-center text-xs text-muted-foreground border-t border-border/50">
           <p>
-            Project SAFER • Powered by ESP32 IoT Nodes & SIM800L GSM • 
+            Project SAFER • Powered by ESP32 IoT Nodes • 
             <span className="text-primary"> Barangay San Miguel, Bulacan</span>
           </p>
           <p className="mt-1 opacity-75">

@@ -14,27 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
-      emergency_contacts: {
+      email_queue: {
         Row: {
           created_at: string
+          email_body: string
           id: number
-          is_active: boolean
-          name: string | null
-          phone_number: string
+          sent_at: string | null
+          status: string | null
+          triggered_by: string | null
         }
         Insert: {
           created_at?: string
+          email_body: string
           id?: number
-          is_active?: boolean
-          name?: string | null
-          phone_number: string
+          sent_at?: string | null
+          status?: string | null
+          triggered_by?: string | null
         }
         Update: {
           created_at?: string
+          email_body?: string
+          id?: number
+          sent_at?: string | null
+          status?: string | null
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
+      emergency_contacts: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: number
+          is_active: boolean
+          name: string | null
+          phone_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
           id?: number
           is_active?: boolean
           name?: string | null
-          phone_number?: string
+          phone_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: number
+          is_active?: boolean
+          name?: string | null
+          phone_number?: string | null
         }
         Relationships: []
       }
@@ -83,33 +113,6 @@ export type Database = {
           status?: string
           temperature?: number | null
           water_level?: number
-        }
-        Relationships: []
-      }
-      sms_queue: {
-        Row: {
-          created_at: string
-          id: number
-          message_body: string
-          sent_at: string | null
-          status: string | null
-          triggered_by: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          message_body: string
-          sent_at?: string | null
-          status?: string | null
-          triggered_by?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          message_body?: string
-          sent_at?: string | null
-          status?: string | null
-          triggered_by?: string | null
         }
         Relationships: []
       }

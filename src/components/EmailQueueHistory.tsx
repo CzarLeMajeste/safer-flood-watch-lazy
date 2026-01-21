@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MessageSquare, Filter, RefreshCw } from "lucide-react";
+import { Mail, Filter, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,16 +7,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 
-interface SmsMessage {
+interface EmailMessage {
   id: number;
-  message_body: string;
+  email_body: string;
   status: string | null;
   created_at: string;
   sent_at: string | null;
 }
 
-const SmsQueueHistory = () => {
-  const [messages, setMessages] = useState<SmsMessage[]>([]);
+const EmailQueueHistory = () => {
+  const [messages, setMessages] = useState<EmailMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
@@ -24,8 +24,8 @@ const SmsQueueHistory = () => {
     setIsLoading(true);
     
     let query = supabase
-      .from("sms_queue")
-      .select("id, message_body, status, created_at, sent_at")
+      .from("email_queue")
+      .select("id, email_body, status, created_at, sent_at")
       .order("created_at", { ascending: false })
       .limit(50);
 
@@ -48,11 +48,11 @@ const SmsQueueHistory = () => {
   const getStatusBadge = (status: string | null) => {
     switch (status) {
       case "sent":
-        return <Badge className="bg-green-500/20 text-green-600 border-green-500/30">Sent</Badge>;
+        return <Badge className="bg-emerald-500/20 text-emerald-600 border-emerald-500/30">Sent</Badge>;
       case "pending":
-        return <Badge className="bg-yellow-500/20 text-yellow-600 border-yellow-500/30">Pending</Badge>;
+        return <Badge className="bg-amber-500/20 text-amber-600 border-amber-500/30">Pending</Badge>;
       case "failed":
-        return <Badge className="bg-red-500/20 text-red-600 border-red-500/30">Failed</Badge>;
+        return <Badge className="bg-destructive/20 text-destructive border-destructive/30">Failed</Badge>;
       default:
         return <Badge variant="outline">{status ?? "Unknown"}</Badge>;
     }
@@ -68,15 +68,15 @@ const SmsQueueHistory = () => {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">SMS Queue History</CardTitle>
+            <Mail className="h-5 w-5 text-primary" />
+            <CardTitle className="text-lg">Email Queue History</CardTitle>
           </div>
           <Button variant="outline" size="sm" onClick={fetchMessages} disabled={isLoading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </div>
-        <CardDescription>View all queued SMS alerts and their delivery status.</CardDescription>
+        <CardDescription>View all queued email alerts and their delivery status.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Filter */}
@@ -124,7 +124,7 @@ const SmsQueueHistory = () => {
                   <TableRow key={msg.id}>
                     <TableCell>{getStatusBadge(msg.status)}</TableCell>
                     <TableCell className="max-w-[300px] truncate font-mono text-sm">
-                      {msg.message_body}
+                      {msg.email_body}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {formatDate(msg.created_at)}
@@ -143,4 +143,4 @@ const SmsQueueHistory = () => {
   );
 };
 
-export default SmsQueueHistory;
+export default EmailQueueHistory;
