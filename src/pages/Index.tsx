@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Droplets, CloudRain, Activity, Thermometer, Droplet } from "lucide-react";
 import Header from "@/components/Header";
 import AlertBanner from "@/components/AlertBanner";
@@ -8,6 +9,7 @@ import HistoricalReportsTable from "@/components/HistoricalReportsTable";
 import BroadcastAlertPanel from "@/components/BroadcastAlertPanel";
 import EmailQueueHistory from "@/components/EmailQueueHistory";
 import StatusPieChart from "@/components/StatusPieChart";
+import DateRangeFilter from "@/components/DateRangeFilter";
 import { useSensorReadings } from "@/hooks/useSensorReadings";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -54,7 +56,11 @@ const getAlertMessage = (status: string | undefined, waterLevel: number | undefi
 };
 
 const Index = () => {
-  const { latestReading, historicalData, isLoading } = useSensorReadings();
+  const [dateRange, setDateRange] = useState({
+    from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    to: new Date(),
+  });
+  const { latestReading, historicalData, isLoading } = useSensorReadings(dateRange);
   const { user, isAdmin, isLoading: authLoading } = useAuth();
 
   const status = latestReading?.status;
@@ -142,6 +148,11 @@ const Index = () => {
               status={cardStatus}
             />
           </div>
+        </section>
+
+        {/* Date Range Filter */}
+        <section className="animate-fade-in" style={{ animationDelay: "0.35s" }}>
+          <DateRangeFilter from={dateRange.from} to={dateRange.to} onChange={setDateRange} />
         </section>
 
         {/* Historical Chart */}
