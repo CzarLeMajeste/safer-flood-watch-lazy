@@ -12,7 +12,7 @@ export interface SensorReading {
   humidity: number | null;
 }
 
-export const useSensorReadings = () => {
+export const useSensorReadings = (dateRange?: { from: Date; to: Date }) => {
   const [latestReading, setLatestReading] = useState<SensorReading | null>(null);
   const [historicalData, setHistoricalData] = useState<SensorReading[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +20,8 @@ export const useSensorReadings = () => {
 
   const fetchData = async () => {
     try {
+      setIsLoading(true);
+
       // Fetch latest reading
       const { data: latest, error: latestError } = await supabase
         .from("sensor_readings")
@@ -31,14 +33,18 @@ export const useSensorReadings = () => {
       if (latestError) throw latestError;
       setLatestReading(latest);
 
-      // Fetch last 30 days of data
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      // Determine date range
+      const from = dateRange?.from ?? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const to = dateRange?.to ?? new Date();
+      // Set 'to' to end of day
+      const toEnd = new Date(to);
+      toEnd.setHours(23, 59, 59, 999);
 
       const { data: historical, error: historicalError } = await supabase
         .from("sensor_readings")
         .select("*")
-        .gte("created_at", thirtyDaysAgo.toISOString())
+        .gte("created_at", from.toISOString())
+        .lte("created_at", toEnd.toISOString())
         .order("created_at", { ascending: true });
 
       if (historicalError) throw historicalError;
@@ -52,6 +58,9 @@ export const useSensorReadings = () => {
 
   useEffect(() => {
     fetchData();
+  }, [dateRange?.from?.getTime(), dateRange?.to?.getTime()]);
+
+  useEffect(() => {
 
     // Subscribe to realtime updates
     const channel = supabase
