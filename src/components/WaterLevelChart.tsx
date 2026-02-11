@@ -22,7 +22,7 @@ const CRITICAL_LEVEL = 100;
 
 const WaterLevelChart = ({ data, isLoading }: WaterLevelChartProps) => {
   const chartData = data.map((reading) => ({
-    time: format(new Date(reading.created_at), "HH:mm"),
+    time: format(new Date(reading.created_at), "MM/dd HH:mm"),
     level: reading.water_level,
   }));
 
@@ -31,7 +31,7 @@ const WaterLevelChart = ({ data, isLoading }: WaterLevelChartProps) => {
       <CardHeader className="pb-2">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
           <CardTitle className="text-lg font-semibold">
-            Water Level Trend (24h)
+            Water Level Trend (30 Days)
           </CardTitle>
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1.5">
@@ -53,7 +53,7 @@ const WaterLevelChart = ({ data, isLoading }: WaterLevelChartProps) => {
             </div>
           ) : chartData.length === 0 ? (
             <div className="h-full flex items-center justify-center text-muted-foreground">
-              No sensor readings in the last 24 hours
+              No sensor readings in the last 30 days
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
