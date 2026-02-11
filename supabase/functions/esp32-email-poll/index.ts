@@ -7,22 +7,29 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Authenticate ESP32 via API key
+    const authHeader = req.headers.get('authorization');
+    const expectedKey = Deno.env.get('ESP32_API_KEY');
+    if (!expectedKey || authHeader !== `Bearer ${expectedKey}`) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // GET - Fetch pending email alerts and emergency contacts
     if (req.method === 'GET') {
       console.log('ESP32 polling for pending email alerts...');
       
-      // Fetch pending messages
       const { data: messages, error: messagesError } = await supabase
         .from('email_queue')
         .select('id, email_body, created_at')
@@ -31,13 +38,12 @@ serve(async (req) => {
 
       if (messagesError) {
         console.error('Error fetching pending emails:', messagesError);
-        return new Response(JSON.stringify({ error: messagesError.message }), {
+        return new Response(JSON.stringify({ error: 'Internal server error' }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      // Fetch active emergency contacts (email addresses)
       const { data: contacts, error: contactsError } = await supabase
         .from('emergency_contacts')
         .select('email, name')
@@ -45,7 +51,7 @@ serve(async (req) => {
 
       if (contactsError) {
         console.error('Error fetching emergency contacts:', contactsError);
-        return new Response(JSON.stringify({ error: contactsError.message }), {
+        return new Response(JSON.stringify({ error: 'Internal server error' }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -66,8 +72,8 @@ serve(async (req) => {
     if (req.method === 'PATCH') {
       const { id } = await req.json();
 
-      if (!id) {
-        return new Response(JSON.stringify({ error: 'Missing message id' }), {
+      if (!id || typeof id !== 'number') {
+        return new Response(JSON.stringify({ error: 'Missing or invalid message id' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -83,7 +89,7 @@ serve(async (req) => {
 
       if (error) {
         console.error('Error updating email status:', error);
-        return new Response(JSON.stringify({ error: error.message }), {
+        return new Response(JSON.stringify({ error: 'Internal server error' }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -102,8 +108,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Unexpected error:', error);
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
