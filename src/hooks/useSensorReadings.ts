@@ -31,14 +31,14 @@ export const useSensorReadings = () => {
       if (latestError) throw latestError;
       setLatestReading(latest);
 
-      // Fetch last 24 hours of data
-      const twentyFourHoursAgo = new Date();
-      twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+      // Fetch last 30 days of data
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const { data: historical, error: historicalError } = await supabase
         .from("sensor_readings")
         .select("*")
-        .gte("created_at", twentyFourHoursAgo.toISOString())
+        .gte("created_at", thirtyDaysAgo.toISOString())
         .order("created_at", { ascending: true });
 
       if (historicalError) throw historicalError;

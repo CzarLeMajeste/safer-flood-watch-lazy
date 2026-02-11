@@ -7,6 +7,7 @@ import EnvironmentalChart from "@/components/EnvironmentalChart";
 import HistoricalReportsTable from "@/components/HistoricalReportsTable";
 import BroadcastAlertPanel from "@/components/BroadcastAlertPanel";
 import EmailQueueHistory from "@/components/EmailQueueHistory";
+import StatusPieChart from "@/components/StatusPieChart";
 import { useSensorReadings } from "@/hooks/useSensorReadings";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -151,6 +152,11 @@ const Index = () => {
         {/* Environmental Conditions Chart */}
         <section className="animate-fade-in" style={{ animationDelay: "0.45s" }}>
           <EnvironmentalChart data={historicalData} isLoading={isLoading} />
+        </section>
+
+        {/* Status & Rainfall Distribution Pie Charts */}
+        <section className="animate-fade-in" style={{ animationDelay: "0.5s" }}>
+          <StatusPieChart data={historicalData} isLoading={isLoading} />
         </section>
 
         {/* Historical Reports Table */}
