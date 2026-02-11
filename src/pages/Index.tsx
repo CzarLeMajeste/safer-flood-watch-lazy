@@ -134,7 +134,7 @@ const Index = () => {
           </div>
           <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <DataCard
-              title="System Status"
+              title="Environment"
               value={latestReading?.status ?? "Offline"}
               unit=""
               icon={Activity}
