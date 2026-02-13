@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -9,14 +9,46 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import type { SensorReading } from "@/hooks/useSensorReadings";
+
+const getRainLabel = (value: number): string => {
+  if (value < 1500) return "Heavy Rain";
+  if (value <= 3000) return "Moderate Rain";
+  return "Dry / Light Drizzle";
+};
+
+const exportToCsv = (data: SensorReading[], from: Date, to: Date) => {
+  if (!data.length) return;
+  const header = "Date/Time,Water Level (cm),Rainfall Condition,Temperature (°C),Humidity (%),Battery Voltage,Status";
+  const rows = data.map((r) =>
+    [
+      new Date(r.created_at).toLocaleString(),
+      r.water_level,
+      getRainLabel(r.rainfall_intensity),
+      r.temperature ?? "",
+      r.humidity ?? "",
+      r.battery_voltage ?? "",
+      r.status,
+    ].join(",")
+  );
+  const csv = [header, ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `sensor-data_${format(from, "yyyy-MM-dd")}_to_${format(to, "yyyy-MM-dd")}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
 interface DateRangeFilterProps {
   from: Date;
   to: Date;
   onChange: (range: { from: Date; to: Date }) => void;
+  data?: SensorReading[];
 }
 
-const DateRangeFilter = ({ from, to, onChange }: DateRangeFilterProps) => {
+const DateRangeFilter = ({ from, to, onChange, data = [] }: DateRangeFilterProps) => {
   const [fromOpen, setFromOpen] = useState(false);
   const [toOpen, setToOpen] = useState(false);
 
@@ -108,6 +140,19 @@ const DateRangeFilter = ({ from, to, onChange }: DateRangeFilterProps) => {
           />
         </PopoverContent>
       </Popover>
+
+      <div className="h-4 w-px bg-border mx-1" />
+
+      <Button
+        variant="outline"
+        size="sm"
+        className="text-xs gap-1.5"
+        onClick={() => exportToCsv(data, from, to)}
+        disabled={!data.length}
+      >
+        <Download className="h-3.5 w-3.5" />
+        Export CSV
+      </Button>
     </div>
   );
 };

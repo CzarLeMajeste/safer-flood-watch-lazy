@@ -152,7 +152,7 @@ const Index = () => {
 
         {/* Date Range Filter */}
         <section className="animate-fade-in" style={{ animationDelay: "0.35s" }}>
-          <DateRangeFilter from={dateRange.from} to={dateRange.to} onChange={setDateRange} />
+          <DateRangeFilter from={dateRange.from} to={dateRange.to} onChange={setDateRange} data={historicalData} />
         </section>
 
         {/* Historical Chart */}
