@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Download } from "lucide-react";
+import { CalendarIcon, Download, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -10,6 +10,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import type { SensorReading } from "@/hooks/useSensorReadings";
+import { generatePdfReport } from "@/lib/generatePdfReport";
 
 const getRainLabel = (value: number): string => {
   if (value < 1500) return "Heavy Rain";
@@ -152,6 +153,17 @@ const DateRangeFilter = ({ from, to, onChange, data = [] }: DateRangeFilterProps
       >
         <Download className="h-3.5 w-3.5" />
         Export CSV
+      </Button>
+
+      <Button
+        variant="outline"
+        size="sm"
+        className="text-xs gap-1.5"
+        onClick={() => generatePdfReport(data, from, to)}
+        disabled={!data.length}
+      >
+        <FileText className="h-3.5 w-3.5" />
+        PDF Report
       </Button>
     </div>
   );
