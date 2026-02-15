@@ -10,6 +10,7 @@ import BroadcastAlertPanel from "@/components/BroadcastAlertPanel";
 import EmailQueueHistory from "@/components/EmailQueueHistory";
 import StatusPieChart from "@/components/StatusPieChart";
 import DateRangeFilter from "@/components/DateRangeFilter";
+import SensorMap, { SENSORS } from "@/components/SensorMap";
 import { useSensorReadings } from "@/hooks/useSensorReadings";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -60,9 +61,11 @@ const Index = () => {
     from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     to: new Date(),
   });
+  const [selectedSensorId, setSelectedSensorId] = useState(SENSORS[0].id);
   const { latestReading, historicalData, isLoading } = useSensorReadings(dateRange);
   const { user, isAdmin, isLoading: authLoading } = useAuth();
 
+  const selectedSensor = SENSORS.find((s) => s.id === selectedSensorId);
   const status = latestReading?.status;
   const statusLevel = getStatusLevel(status);
   const cardStatus = getCardStatus(status);
@@ -88,17 +91,34 @@ const Index = () => {
           </section>
         )}
 
-        {/* Alert Banner */}
-        <section className="animate-fade-in">
-          <AlertBanner
-            level={statusLevel}
-            message={getAlertMessage(status, latestReading?.water_level)}
-            lastUpdated={
-              latestReading
-                ? new Date(latestReading.created_at).toLocaleString()
-                : "No data yet"
-            }
-          />
+        {/* Sensor Map + Alert Banner */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 animate-fade-in">
+          <div className="lg:col-span-2">
+            <SensorMap
+              selectedSensorId={selectedSensorId}
+              onSelectSensor={setSelectedSensorId}
+            />
+          </div>
+          <div className="flex flex-col gap-4">
+            <AlertBanner
+              level={statusLevel}
+              message={getAlertMessage(status, latestReading?.water_level)}
+              lastUpdated={
+                latestReading
+                  ? new Date(latestReading.created_at).toLocaleString()
+                  : "No data yet"
+              }
+            />
+            {/* Active sensor indicator */}
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-1">
+              <p className="text-xs font-medium text-primary uppercase tracking-wider">Active Device</p>
+              <p className="text-sm font-semibold text-foreground">{selectedSensor?.name}</p>
+              <p className="text-xs text-muted-foreground">{selectedSensor?.location}</p>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                {selectedSensor?.lat.toFixed(4)}°N, {selectedSensor?.lng.toFixed(4)}°E
+              </p>
+            </div>
+          </div>
         </section>
 
         {/* Real-Time Data Cards */}
