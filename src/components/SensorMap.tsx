@@ -1,7 +1,8 @@
-import { MapPin, Wifi, WifiOff } from "lucide-react";
+import { MapPin, Wifi, WifiOff, Navigation } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
-interface Sensor {
+export interface Sensor {
   id: string;
   name: string;
   location: string;
@@ -11,7 +12,7 @@ interface Sensor {
   lastPing: string;
 }
 
-const sensors: Sensor[] = [
+export const SENSORS: Sensor[] = [
   {
     id: "ESP32-001",
     name: "River Bridge Sensor",
@@ -41,8 +42,14 @@ const sensors: Sensor[] = [
   },
 ];
 
-const SensorMap = () => {
-  const onlineSensors = sensors.filter((s) => s.status === "online").length;
+interface SensorMapProps {
+  selectedSensorId: string;
+  onSelectSensor: (sensorId: string) => void;
+}
+
+const SensorMap = ({ selectedSensorId, onSelectSensor }: SensorMapProps) => {
+  const onlineSensors = SENSORS.filter((s) => s.status === "online").length;
+  const selectedSensor = SENSORS.find((s) => s.id === selectedSensorId);
 
   return (
     <Card className="border-border/50 bg-card/80 backdrop-blur-sm h-full">
@@ -52,12 +59,12 @@ const SensorMap = () => {
           <div className="flex items-center gap-2 text-sm">
             <span className="text-sensor-online font-medium">{onlineSensors}</span>
             <span className="text-muted-foreground">/</span>
-            <span className="text-muted-foreground">{sensors.length} online</span>
+            <span className="text-muted-foreground">{SENSORS.length} online</span>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        {/* Map Placeholder */}
+        {/* Map Area */}
         <div className="relative w-full h-48 md:h-64 rounded-lg bg-secondary/50 overflow-hidden mb-4">
           {/* Grid overlay for map effect */}
           <div
@@ -70,75 +77,105 @@ const SensorMap = () => {
               backgroundSize: "40px 40px",
             }}
           />
-          
-          {/* Sensor pins */}
-          {sensors.map((sensor, index) => (
-            <div
-              key={sensor.id}
-              className={`absolute transform -translate-x-1/2 -translate-y-1/2 ${
-                sensor.status === "online" ? "sensor-pulse" : ""
-              }`}
-              style={{
-                left: `${25 + index * 25}%`,
-                top: `${30 + index * 15}%`,
-              }}
-            >
-              <div
-                className={`relative p-2 rounded-full ${
-                  sensor.status === "online"
-                    ? "bg-sensor-online/20 border-2 border-sensor-online"
-                    : "bg-sensor-offline/20 border-2 border-sensor-offline"
-                }`}
-              >
-                <MapPin
-                  className={`h-4 w-4 ${
-                    sensor.status === "online"
-                      ? "text-sensor-online"
-                      : "text-sensor-offline"
-                  }`}
-                />
-              </div>
-            </div>
-          ))}
 
-          {/* Map label */}
-          <div className="absolute bottom-2 left-2 bg-background/80 backdrop-blur-sm rounded px-2 py-1 text-xs text-muted-foreground">
-            Barangay San Miguel, Bulacan
+          {/* Sensor pins */}
+          {SENSORS.map((sensor, index) => {
+            const isSelected = sensor.id === selectedSensorId;
+            return (
+              <button
+                key={sensor.id}
+                onClick={() => onSelectSensor(sensor.id)}
+                className={cn(
+                  "absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 group cursor-pointer",
+                  sensor.status === "online" && !isSelected && "sensor-pulse",
+                  isSelected && "z-20 scale-125",
+                )}
+                style={{
+                  left: `${25 + index * 25}%`,
+                  top: `${30 + index * 15}%`,
+                }}
+                title={`${sensor.name} — ${sensor.location}`}
+              >
+                <div
+                  className={cn(
+                    "relative p-2 rounded-full transition-all duration-200",
+                    isSelected
+                      ? "bg-primary/30 border-2 border-primary shadow-lg shadow-primary/30 ring-2 ring-primary/20"
+                      : sensor.status === "online"
+                        ? "bg-sensor-online/20 border-2 border-sensor-online group-hover:bg-sensor-online/30"
+                        : "bg-sensor-offline/20 border-2 border-sensor-offline group-hover:bg-sensor-offline/30",
+                  )}
+                >
+                  <MapPin
+                    className={cn(
+                      "h-4 w-4 transition-colors",
+                      isSelected
+                        ? "text-primary"
+                        : sensor.status === "online"
+                          ? "text-sensor-online"
+                          : "text-sensor-offline",
+                    )}
+                  />
+                </div>
+                {/* Tooltip on hover */}
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-background/90 backdrop-blur-sm border border-border rounded px-2 py-0.5 text-[10px] text-foreground shadow-md">
+                  {sensor.name}
+                </div>
+              </button>
+            );
+          })}
+
+          {/* Selected location label */}
+          <div className="absolute bottom-2 left-2 bg-background/80 backdrop-blur-sm rounded px-2 py-1 text-xs text-muted-foreground flex items-center gap-1.5">
+            <Navigation className="h-3 w-3 text-primary" />
+            {selectedSensor?.location ?? "Barangay San Miguel, Bulacan"}
           </div>
         </div>
 
         {/* Sensor list */}
         <div className="space-y-2">
-          {sensors.map((sensor) => (
-            <div
-              key={sensor.id}
-              className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                {sensor.status === "online" ? (
-                  <Wifi className="h-4 w-4 text-sensor-online" />
-                ) : (
-                  <WifiOff className="h-4 w-4 text-sensor-offline" />
+          {SENSORS.map((sensor) => {
+            const isSelected = sensor.id === selectedSensorId;
+            return (
+              <button
+                key={sensor.id}
+                onClick={() => onSelectSensor(sensor.id)}
+                className={cn(
+                  "flex items-center justify-between p-3 rounded-lg w-full text-left transition-all duration-200",
+                  isSelected
+                    ? "bg-primary/10 border border-primary/30 ring-1 ring-primary/20"
+                    : "bg-secondary/30 hover:bg-secondary/50 border border-transparent",
                 )}
-                <div>
-                  <p className="text-sm font-medium">{sensor.name}</p>
-                  <p className="text-xs text-muted-foreground">{sensor.id}</p>
+              >
+                <div className="flex items-center gap-3">
+                  {sensor.status === "online" ? (
+                    <Wifi className={cn("h-4 w-4", isSelected ? "text-primary" : "text-sensor-online")} />
+                  ) : (
+                    <WifiOff className="h-4 w-4 text-sensor-offline" />
+                  )}
+                  <div>
+                    <p className={cn("text-sm font-medium", isSelected && "text-primary")}>{sensor.name}</p>
+                    <p className="text-xs text-muted-foreground">{sensor.id}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="text-right">
-                <p
-                  className={`text-xs font-medium ${
-                    sensor.status === "online"
-                      ? "text-sensor-online"
-                      : "text-sensor-offline"
-                  }`}
-                >
-                  {sensor.status.toUpperCase()}
-                </p>
-                <p className="text-xs text-muted-foreground">{sensor.lastPing}</p>
-              </div>
-            </div>
-          ))}
+                <div className="text-right">
+                  <p
+                    className={cn(
+                      "text-xs font-medium",
+                      isSelected
+                        ? "text-primary"
+                        : sensor.status === "online"
+                          ? "text-sensor-online"
+                          : "text-sensor-offline",
+                    )}
+                  >
+                    {isSelected ? "VIEWING" : sensor.status.toUpperCase()}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{sensor.lastPing}</p>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </CardContent>
     </Card>
